@@ -1,0 +1,148 @@
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background-color: #0f1115;
+}
+
+/* GIF Card */
+.gif-card {
+  border-radius: 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gif-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+}
+
+.gif-card__image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #111;
+}
+
+.gif-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gif-card__date {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.75rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.7rem;
+  border-radius: 0.4rem;
+  padding: 0.15rem 0.45rem;
+  cursor: default;
+}
+
+.gif-card__full-date {
+  display: none;
+}
+
+.gif-card__date:hover .gif-card__time-ago {
+  display: none;
+}
+
+.gif-card__date:hover .gif-card__full-date {
+  display: inline;
+}
+
+/* Timeline grid */
+.timeline-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  width: min(80vw, 900px);
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .timeline-grid {
+    width: 100%;
+  }
+}
+
+/* FAB */
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Post modal GIF grid */
+.post-modal-dialog {
+  max-width: min(96vw, 1200px);
+}
+
+.post-modal-dialog .modal-content {
+  min-height: 78vh;
+}
+
+.giphy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  max-height: 55vh;
+  overflow-y: auto;
+  align-items: start;
+}
+
+@media (min-width: 576px) {
+  .giphy-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.giphy-grid__item {
+  cursor: pointer;
+  min-height: 110px;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: border-color 0.1s ease;
+  background: transparent;
+}
+
+.giphy-grid__item:hover,
+.giphy-grid__item.selected {
+  border-color: rgba(13, 110, 253, 0.45);
+}
+
+.giphy-grid__item img {
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+@media (max-width: 576px) {
+  .post-modal-dialog .modal-content {
+    min-height: 86vh;
+  }
+
+  .giphy-grid {
+    max-height: 58vh;
+  }
+}

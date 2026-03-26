@@ -18,7 +18,12 @@ export default async function authRoutes(app: FastifyInstance): Promise<void> {
       if (!dto) return;
 
       const existing = await prisma.user.findFirst({
-        where: { OR: [{ email: dto.email }, { username: dto.username }] },
+        where: {
+          OR: [
+            { email: dto.email },
+            { username: { equals: dto.username, mode: 'insensitive' } },
+          ],
+        },
       });
       if (existing) {
         return reply

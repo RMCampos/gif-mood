@@ -7,7 +7,51 @@ import { prisma } from '../../lib/prisma';
 import { validateDto } from '../../lib/validate';
 import { UpdateUserDto } from '../../dtos/user.dto';
 
+interface UsernameAvailabilityQuery {
+  username?: string;
+}
+
 export default async function userRoutes(app: FastifyInstance): Promise<void> {
+  // GET /users/check-username?username=foo  (public — no auth required)
+  app.get<{ Querystring: UsernameAvailabilityQuery }>(
+    '/check-username',
+    async (request: FastifyRequest<{ Querystring: UsernameAvailabilityQuery }>, reply: FastifyReply) => {
+      const rawUsername = request.query.username ?? '';
+      const username = rawUsername.trim();
+      const normalized = username.toLowerCase();
+
+      if (normalized.length < 3) {
+        return reply.send({ available: false, message: 'Username must be at least 3 characters' });
+      }
+
+      if (!/^[a-z_]+$/.test(normalized)) {
+        return reply.send({
+          available: false,
+          message: 'Username can only contain letters (a-z) and underscores',
+        });
+      }
+
+      // Optionally identify the current user so we don't flag their own username as taken
+      let currentUserId: string | undefined;
+      try {
+        await request.jwtVerify();
+        currentUserId = request.user.sub;
+      } catch {
+        // unauthenticated — no exclusion needed
+      }
+
+      const taken = await prisma.user.findFirst({
+        where: {
+          username: { equals: normalized, mode: 'insensitive' },
+          ...(currentUserId ? { NOT: { id: currentUserId } } : {}),
+        },
+        select: { id: true },
+      });
+
+      return reply.send({ available: !taken });
+    },
+  );
+
   // GET /users/me
   app.get('/me', { preHandler: app.authenticate }, async (request: FastifyRequest, reply: FastifyReply) => {
     const user = await prisma.user.findUnique({
@@ -29,7 +73,10 @@ export default async function userRoutes(app: FastifyInstance): Promise<void> {
 
     if (dto.username) {
       const taken = await prisma.user.findFirst({
-        where: { username: dto.username, NOT: { id: request.user.sub } },
+        where: {
+          username: { equals: dto.username, mode: 'insensitive' },
+          NOT: { id: request.user.sub },
+        },
       });
       if (taken) {
         return reply.status(409).send({ statusCode: 409, error: 'Conflict', message: 'Username already taken' });
