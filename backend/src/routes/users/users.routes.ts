@@ -15,6 +15,9 @@ export default async function userRoutes(app: FastifyInstance): Promise<void> {
   // GET /users/check-username?username=foo  (public — no auth required)
   app.get<{ Querystring: UsernameAvailabilityQuery }>(
     '/check-username',
+    {
+      config: { rateLimit: { max: 40, timeWindow: '1 minute' } },
+    },
     async (request: FastifyRequest<{ Querystring: UsernameAvailabilityQuery }>, reply: FastifyReply) => {
       const rawUsername = request.query.username ?? '';
       const username = rawUsername.trim();

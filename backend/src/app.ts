@@ -33,7 +33,7 @@ async function buildApp(): Promise<FastifyInstance> {
   await app.register(shareRoutes, { prefix: '/shares' });
 
   // Health check
-  app.get('/health', async () => ({ status: 'ok' }));
+  app.get('/health', { config: { rateLimit: false } }, async () => ({ status: 'ok' }));
 
   return app;
 }

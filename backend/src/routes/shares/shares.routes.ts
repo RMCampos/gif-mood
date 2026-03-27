@@ -15,15 +15,28 @@ interface PaginationQuery {
 
 export default async function shareRoutes(app: FastifyInstance): Promise<void> {
   // GET /shares/me — get current share link status (protected)
-  app.get('/me', { preHandler: app.authenticate }, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.get(
+    '/me',
+    {
+      preHandler: app.authenticate,
+      config: { rateLimit: { max: 60, timeWindow: '1 minute' } },
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
     const shareLink = await prisma.shareLink.findUnique({
       where: { userId: request.user.sub },
     });
     return reply.send({ shareLink: shareLink ?? null });
-  });
+    },
+  );
 
   // POST /shares — create or regenerate share link (protected)
-  app.post('/', { preHandler: app.authenticate }, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post(
+    '/',
+    {
+      preHandler: app.authenticate,
+      config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
     const dto = await validateDto(CreateShareDto, request.body, reply);
     if (!dto) return;
 
@@ -42,21 +55,32 @@ export default async function shareRoutes(app: FastifyInstance): Promise<void> {
     });
 
     return reply.status(201).send({ shareLink });
-  });
+    },
+  );
 
   // DELETE /shares — revoke share link (protected)
-  app.delete('/', { preHandler: app.authenticate }, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.delete(
+    '/',
+    {
+      preHandler: app.authenticate,
+      config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
     const existing = await prisma.shareLink.findUnique({ where: { userId: request.user.sub } });
     if (!existing) {
       return reply.status(404).send({ statusCode: 404, error: 'Not Found', message: 'No active share link' });
     }
     await prisma.shareLink.delete({ where: { userId: request.user.sub } });
     return reply.status(204).send();
-  });
+    },
+  );
 
   // GET /shares/:token — public; validate token + expiry, return paginated posts
   app.get(
     '/:token',
+    {
+      config: { rateLimit: { max: 40, timeWindow: '1 minute' } },
+    },
     async (
       request: FastifyRequest<{ Params: ShareTokenParams; Querystring: PaginationQuery }>,
       reply: FastifyReply,

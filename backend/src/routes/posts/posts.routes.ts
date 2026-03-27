@@ -10,7 +10,13 @@ interface PaginationQuery {
 
 export default async function postRoutes(app: FastifyInstance): Promise<void> {
   // POST /posts
-  app.post('/', { preHandler: app.authenticate }, async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post(
+    '/',
+    {
+      preHandler: app.authenticate,
+      config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
     const dto = await validateDto(CreatePostDto, request.body, reply);
     if (!dto) return;
 
@@ -18,12 +24,16 @@ export default async function postRoutes(app: FastifyInstance): Promise<void> {
       data: { userId: request.user.sub, gifUrl: dto.gifUrl, source: dto.source },
     });
     return reply.status(201).send(post);
-  });
+    },
+  );
 
   // GET /posts/me?cursor=&take=
   app.get<{ Querystring: PaginationQuery }>(
     '/me',
-    { preHandler: app.authenticate },
+    {
+      preHandler: app.authenticate,
+      config: { rateLimit: { max: 120, timeWindow: '1 minute' } },
+    },
     async (request, reply) => {
       const take = Math.min(parseInt(request.query.take ?? '20', 10), 50);
       const cursor = request.query.cursor;

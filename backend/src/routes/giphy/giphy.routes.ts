@@ -11,7 +11,10 @@ export default async function giphyRoutes(app: FastifyInstance): Promise<void> {
   // GET /giphy/search?q=&limit=&offset=
   app.get<{ Querystring: GiphySearchQuery }>(
     '/search',
-    { preHandler: app.authenticate },
+    {
+      preHandler: app.authenticate,
+      config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
+    },
     async (request, reply) => {
       const { q, limit = '20', offset = '0' } = request.query;
 
