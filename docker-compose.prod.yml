@@ -1,0 +1,82 @@
+---
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gif_mood_db
+    environment:
+      POSTGRES_USER: gifmood
+      POSTGRES_PASSWORD: gifmood
+      POSTGRES_DB: gifmood
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gifmood"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - gift-mood-network
+
+  prisma-push:
+    build:
+      context: ./backend
+      target: prisma
+    image: ghcr.io/rmcampos/gif-mood/backend-prisma:latest
+    container_name: gif_mood_prisma_push
+    environment:
+      DATABASE_URL: postgresql://gifmood:gifmood@postgres:5432/gifmood
+    command: ["npx", "prisma", "db", "push"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - gift-mood-network
+
+  backend:
+    build: ./backend
+    image: ghcr.io/rmcampos/gif-mood/backend:latest
+    container_name: gif_mood_backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prisma-push:
+        condition: service_completed_successfully
+    env_file:
+      - backend/.env
+    volumes:
+      - ./uploads:/uploads
+    ports:
+      - "3000:3000"
+    networks:
+      - gift-mood-network
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_BACKEND_SERVER=http://localhost:3000
+    image: ghcr.io/rmcampos/gif-mood/frontend:latest
+    container_name: gif_mood_frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+    networks:
+      - gift-mood-network
+
+volumes:
+  db-data:
+  uploads:
+networks:
+  gift-mood-network:
+    driver: bridge

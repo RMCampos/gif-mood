@@ -16,6 +16,7 @@ import shareRoutes from './routes/shares/shares.routes';
 
 async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({ logger: true });
+  const apiPrefix = '/api';
 
   // Plugins
   await app.register(corsPlugin);
@@ -25,15 +26,15 @@ async function buildApp(): Promise<FastifyInstance> {
   await app.register(staticPlugin);
 
   // Routes
-  await app.register(authRoutes, { prefix: '/auth' });
-  await app.register(userRoutes, { prefix: '/users' });
-  await app.register(uploadRoutes, { prefix: '/uploads' });
-  await app.register(giphyRoutes, { prefix: '/giphy' });
-  await app.register(postRoutes, { prefix: '/posts' });
-  await app.register(shareRoutes, { prefix: '/shares' });
+  await app.register(authRoutes, { prefix: `${apiPrefix}/auth` });
+  await app.register(userRoutes, { prefix: `${apiPrefix}/users` });
+  await app.register(uploadRoutes, { prefix: `${apiPrefix}/uploads` });
+  await app.register(giphyRoutes, { prefix: `${apiPrefix}/giphy` });
+  await app.register(postRoutes, { prefix: `${apiPrefix}/posts` });
+  await app.register(shareRoutes, { prefix: `${apiPrefix}/shares` });
 
   // Health check
-  app.get('/health', { config: { rateLimit: false } }, async () => ({ status: 'ok' }));
+  app.get(`${apiPrefix}/health`, { config: { rateLimit: false } }, async () => ({ status: 'ok' }));
 
   return app;
 }

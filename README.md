@@ -41,7 +41,7 @@ docker compose up --build
 5. Access services:
 - Backend API: http://localhost:3000
 - Frontend (if running separately): http://localhost:5173
-- Health check: http://localhost:3000/health
+- Health check: http://localhost:3000/api/health
 
 ## Docker Services
 

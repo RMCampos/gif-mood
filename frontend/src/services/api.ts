@@ -6,6 +6,8 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+console.log(`API base URL: ${api.defaults.baseURL}`);
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {

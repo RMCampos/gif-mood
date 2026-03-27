@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useAuth } from '../hooks/useAuth.js';
 
 // Plain axios instance without the 401-redirect interceptor, for unauthenticated checks
-const publicApi = axios.create({ baseURL: '/api', headers: { 'Content-Type': 'application/json' } });
+const publicApi = axios.create({ baseURL: api.defaults.baseURL, headers: { 'Content-Type': 'application/json' } });
 
 type UsernameStatus = 'idle' | 'checking' | 'available' | 'unavailable' | 'invalid';
 
