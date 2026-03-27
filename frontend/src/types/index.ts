@@ -1,3 +1,11 @@
+export interface AuthContextValue {
+  token: string | null;
+  user: JwtPayload | null;
+  login: (token: string) => void;
+  logout: () => void;
+  isAuthenticated: boolean;
+}
+
 export type PostSource = 'SEARCH' | 'URL' | 'UPLOAD';
 
 export interface User {

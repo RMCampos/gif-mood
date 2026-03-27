@@ -1,12 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext.js';
+import { AuthProvider } from './context/AuthContext.js';
 import Landing from './pages/Landing.js';
 import Login from './pages/Login.js';
 import Register from './pages/Register.js';
 import Home from './pages/Home.js';
 import Profile from './pages/Profile.js';
 import SharedTimeline from './pages/SharedTimeline.js';
+import { useAuth } from './hooks/useAuth.js';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();

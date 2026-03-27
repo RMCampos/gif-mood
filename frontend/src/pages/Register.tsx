@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.js';
 import api from '../services/api.js';
 import { AuthResponse } from '../types/index.js';
 import axios from 'axios';
+import { useAuth } from '../hooks/useAuth.js';
 
 // Plain axios instance without the 401-redirect interceptor, for unauthenticated checks
 const publicApi = axios.create({ baseURL: '/api', headers: { 'Content-Type': 'application/json' } });

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navbar from '../components/Navbar.js';
 import api from '../services/api.js';
 import { User, ShareLink } from '../types/index.js';
@@ -49,7 +49,7 @@ export default function Profile() {
     load();
   }, []);
 
-  async function checkUsernameAvailability(value: string): Promise<void> {
+  const checkUsernameAvailability = useCallback(async (value: string): Promise<void> => {
     const trimmed = value.trim();
     const normalized = trimmed.toLowerCase();
     const currentNormalized = user?.username.trim().toLowerCase() ?? '';
@@ -97,7 +97,7 @@ export default function Profile() {
         setUsernameMessage('Could not verify username right now');
       }
     }
-  }
+  }, [username, user]);
 
   useEffect(() => {
     if (!user) return;
@@ -107,7 +107,7 @@ export default function Profile() {
     }, 350);
 
     return () => window.clearTimeout(timeoutId);
-  }, [username, user]);
+  }, [username, user, checkUsernameAvailability]);
 
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();

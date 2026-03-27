@@ -1,13 +1,6 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { useState, useCallback, ReactNode } from 'react';
 import { JwtPayload } from '../types/index.js';
-
-interface AuthContextValue {
-  token: string | null;
-  user: JwtPayload | null;
-  login: (token: string) => void;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
+import { AuthContext } from './AuthContextInstance.js';
 
 function decodeJwt(token: string): JwtPayload | null {
   try {
@@ -21,8 +14,6 @@ function decodeJwt(token: string): JwtPayload | null {
 function isTokenExpired(payload: JwtPayload): boolean {
   return payload.exp * 1000 < Date.now();
 }
-
-const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => {
@@ -61,10 +52,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
 }

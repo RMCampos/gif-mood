@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.js';
 import api from '../services/api.js';
 import { AuthResponse } from '../types/index.js';
 import axios from 'axios';
+import { useAuth } from '../hooks/useAuth.js';
 
 export default function Login() {
   const { login } = useAuth();
