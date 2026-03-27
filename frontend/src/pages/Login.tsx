@@ -8,7 +8,7 @@ import axios from 'axios';
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await api.post<AuthResponse>('/auth/login', { email, password });
+      const { data } = await api.post<AuthResponse>('/auth/login', { identifier, password });
       login(data.token);
       navigate('/home', { replace: true });
     } catch (err) {
@@ -39,15 +39,15 @@ export default function Login() {
         {error && <div className="alert alert-danger py-2">{error}</div>}
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-3">
-            <label className="form-label" htmlFor="email">Email</label>
+            <label className="form-label" htmlFor="identifier">Email or username</label>
             <input
-              id="email"
-              type="email"
+              id="identifier"
+              type="text"
               className="form-control"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
-              autoComplete="email"
+              autoComplete="username"
             />
           </div>
           <div className="mb-4">

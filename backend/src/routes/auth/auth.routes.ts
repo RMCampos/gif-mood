@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import { prisma } from '../../lib/prisma';
 import { validateDto } from '../../lib/validate';
 import { RegisterDto, LoginDto } from '../../dtos/auth.dto';
+import { authenticateLogin, buildLoginIdentifierFilter } from '../../services/auth-login.service';
 
 export default async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /auth/register
@@ -53,7 +54,14 @@ export default async function authRoutes(app: FastifyInstance): Promise<void> {
       const dto = await validateDto(LoginDto, request.body, reply);
       if (!dto) return;
 
-      const user = await prisma.user.findUnique({ where: { email: dto.email } });
+      const user = await authenticateLogin({
+        identifier: dto.identifier,
+        password: dto.password,
+        findUserByIdentifier: async (identifier) => prisma.user.findFirst({
+          where: buildLoginIdentifierFilter(identifier),
+        }),
+        comparePassword: bcrypt.compare,
+      });
       if (!user || user.disabledAt) {
         return reply
           .status(401)
