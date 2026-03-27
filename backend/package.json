@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "build": "tsc",
+    "test": "npm run build && node --test dist/tests/*.test.js",
     "start": "node dist/server.js",
     "dev": "npx ts-node src/server.ts",
     "migrate": "prisma migrate deploy",

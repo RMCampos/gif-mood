@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import axios from 'axios';
 import { GiphyGif, PostSource } from '../types/index.js';
 import api from '../services/api.js';
 
@@ -9,6 +10,25 @@ interface PostModalProps {
 }
 
 type Tab = 'search' | 'url' | 'upload';
+
+function getApiErrorMessage(err: unknown, fallback: string): string {
+  if (!axios.isAxiosError(err)) return fallback;
+
+  const payload = err.response?.data;
+  if (typeof payload !== 'object' || payload === null) return fallback;
+
+  const maybeMessage = (payload as { message?: unknown }).message;
+  if (Array.isArray(maybeMessage)) {
+    const joined = maybeMessage.filter((item): item is string => typeof item === 'string').join(' ');
+    return joined || fallback;
+  }
+
+  if (typeof maybeMessage === 'string' && maybeMessage.trim()) {
+    return maybeMessage;
+  }
+
+  return fallback;
+}
 
 export default function PostModal({ show, onClose, onCreated }: PostModalProps) {
   const [tab, setTab] = useState<Tab>('search');
@@ -36,8 +56,8 @@ export default function PostModal({ show, onClose, onCreated }: PostModalProps) 
         params: { q: searchQuery, limit: 18 },
       });
       setSearchResults(data.data);
-    } catch {
-      setError('Failed to search GIFs');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to search GIFs'));
     } finally {
       setSearching(false);
     }
@@ -52,8 +72,8 @@ export default function PostModal({ show, onClose, onCreated }: PostModalProps) 
       await api.post('/posts', { gifUrl, source: 'SEARCH' satisfies PostSource });
       onCreated();
       handleClose();
-    } catch {
-      setError('Failed to create post. Please try again.');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to create post. Please try again.'));
     } finally {
       setSubmitting(false);
     }
@@ -86,8 +106,8 @@ export default function PostModal({ show, onClose, onCreated }: PostModalProps) 
       }
       onCreated();
       handleClose();
-    } catch {
-      setError('Failed to create post. Please try again.');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to create post. Please try again.'));
     } finally {
       setSubmitting(false);
     }

@@ -43,13 +43,8 @@ services:
         condition: service_healthy
       prisma-push:
         condition: service_completed_successfully
-    environment:
-      DATABASE_URL: postgresql://gifmood:gifmood@postgres:5432/gifmood
-      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-long-random-secret}
-      GIPHY_API_KEY: ${GIPHY_API_KEY:-}
-      UPLOAD_DIR: /uploads
-      PORT: 3000
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+    env_file:
+      - backend/.env
     volumes:
       - ./uploads:/uploads
     ports:
