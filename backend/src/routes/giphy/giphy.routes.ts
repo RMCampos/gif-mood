@@ -16,7 +16,7 @@ export default async function giphyRoutes(app: FastifyInstance): Promise<void> {
       config: { rateLimit: { max: 30, timeWindow: '1 minute' } },
     },
     async (request, reply) => {
-      const { q, limit = '20', offset = '0' } = request.query;
+      const { q, limit = '24', offset = '0' } = request.query;
 
       if (!q || q.trim().length === 0) {
         return reply.status(400).send({ statusCode: 400, error: 'Bad Request', message: 'Query parameter q is required' });
@@ -27,7 +27,7 @@ export default async function giphyRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(500).send({ statusCode: 500, error: 'Internal Server Error', message: 'GIPHY not configured' });
       }
 
-      const parsedLimit = Math.min(parseInt(limit, 10) || 20, 50);
+      const parsedLimit = Math.min(parseInt(limit, 10) || 24, 50);
       const parsedOffset = parseInt(offset, 10) || 0;
 
       const url = new URL('https://api.giphy.com/v1/gifs/search');

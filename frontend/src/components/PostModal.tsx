@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import { GiphyGif, PostSource } from '../types/index.js';
+import { GiphyGif, GiphySearchResponse, PostSource } from '../types/index.js';
 import api from '../services/api.js';
 
 interface PostModalProps {
@@ -10,6 +10,8 @@ interface PostModalProps {
 }
 
 type Tab = 'search' | 'url' | 'upload';
+const GIPHY_PAGE_SIZE = 24;
+const SEARCH_SUBMIT_DEBOUNCE_MS = 450;
 
 function getApiErrorMessage(err: unknown, fallback: string): string {
   if (!axios.isAxiosError(err)) return fallback;
@@ -35,12 +37,17 @@ export default function PostModal({ show, onClose, onCreated }: PostModalProps) 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<GiphyGif[]>([]);
   const [searching, setSearching] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [activeQuery, setActiveQuery] = useState('');
+  const [totalResults, setTotalResults] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
   const [urlValue, setUrlValue] = useState('');
   const [urlError, setUrlError] = useState('');
 
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const lastSearchSubmitAtRef = useRef(0);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -49,17 +56,53 @@ export default function PostModal({ show, onClose, onCreated }: PostModalProps) 
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    if (searching || loadingMore) return;
+
+    const now = Date.now();
+    if (now - lastSearchSubmitAtRef.current < SEARCH_SUBMIT_DEBOUNCE_MS) return;
+    lastSearchSubmitAtRef.current = now;
+
+    const submittedQuery = searchQuery.trim();
+    if (!submittedQuery) return;
     setSearching(true);
+    setError('');
     try {
-      const { data } = await api.get<{ data: GiphyGif[] }>('/giphy/search', {
-        params: { q: searchQuery, limit: 18 },
+      const { data } = await api.get<GiphySearchResponse>('/giphy/search', {
+        params: { q: submittedQuery, limit: GIPHY_PAGE_SIZE, offset: 0 },
       });
       setSearchResults(data.data);
+      setActiveQuery(submittedQuery);
+      setTotalResults(data.pagination.total_count);
+      setHasMore(data.pagination.offset + data.pagination.count < data.pagination.total_count);
     } catch (err: unknown) {
       setError(getApiErrorMessage(err, 'Failed to search GIFs'));
     } finally {
       setSearching(false);
+    }
+  }
+
+  async function handleLoadMore() {
+    if (searching || loadingMore || !hasMore || !activeQuery) return;
+
+    setLoadingMore(true);
+    setError('');
+    try {
+      const nextOffset = searchResults.length;
+      const { data } = await api.get<GiphySearchResponse>('/giphy/search', {
+        params: { q: activeQuery, limit: GIPHY_PAGE_SIZE, offset: nextOffset },
+      });
+
+      setSearchResults((prev) => {
+        const existingIds = new Set(prev.map((gif) => gif.id));
+        const uniqueIncoming = data.data.filter((gif) => !existingIds.has(gif.id));
+        return [...prev, ...uniqueIncoming];
+      });
+      setTotalResults(data.pagination.total_count);
+      setHasMore(data.pagination.offset + data.pagination.count < data.pagination.total_count);
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Failed to load more GIFs'));
+    } finally {
+      setLoadingMore(false);
     }
   }
 
@@ -117,6 +160,10 @@ export default function PostModal({ show, onClose, onCreated }: PostModalProps) 
     setTab('search');
     setSearchQuery('');
     setSearchResults([]);
+    setLoadingMore(false);
+    setActiveQuery('');
+    setTotalResults(0);
+    setHasMore(false);
     setUrlValue('');
     setUrlError('');
     setUploadFile(null);
@@ -162,22 +209,40 @@ export default function PostModal({ show, onClose, onCreated }: PostModalProps) 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                  <button className="btn btn-primary" type="submit" disabled={searching}>
+                  <button className="btn btn-primary" type="submit" disabled={searching || loadingMore || !searchQuery.trim()}>
                     {searching ? '…' : 'Search'}
                   </button>
                 </form>
+                <small className="text-muted d-block mb-3">Press Enter to run a new search. Typing only updates the input.</small>
                 {searchResults.length > 0 && (
-                  <div className="giphy-grid">
-                    {searchResults.map((gif) => (
-                      <div
-                        key={gif.id}
-                        className="giphy-grid__item"
-                        onClick={() => void handleSelectGif(gif)}
-                      >
-                        <img src={gif.images.fixed_height.url} alt={gif.title} loading="lazy" />
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    <div className="giphy-grid">
+                      {searchResults.map((gif) => (
+                        <div
+                          key={gif.id}
+                          className="giphy-grid__item"
+                          onClick={() => void handleSelectGif(gif)}
+                        >
+                          <img src={gif.images.fixed_height.url} alt={gif.title} loading="lazy" />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="d-flex justify-content-between align-items-center mt-3">
+                      <small className="text-muted">Showing {searchResults.length} of {totalResults}</small>
+                      {hasMore && (
+                        <button
+                          className="btn btn-outline-primary"
+                          onClick={() => void handleLoadMore()}
+                          disabled={loadingMore || searching}
+                        >
+                          {loadingMore ? 'Loading…' : 'Load More'}
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
+                {!searching && searchResults.length === 0 && activeQuery && (
+                  <p className="text-muted mb-0">No results found for "{activeQuery}".</p>
                 )}
               </div>
             )}
