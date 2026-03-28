@@ -193,7 +193,7 @@ export default function PostModal({ show, onClose, onCreated }: PostModalProps) 
                     className={`nav-link${tab === t ? ' active' : ''}`}
                     onClick={() => { setTab(t); setError(''); }}
                   >
-                    {t === 'search' ? '🔍 Search GIPHY' : t === 'url' ? '🔗 Paste URL' : '📁 Upload File'}
+                    {t === 'search' ? '🔍 Search' : t === 'url' ? '🔗 Paste' : '📁 Upload'}
                   </button>
                 </li>
               ))}
