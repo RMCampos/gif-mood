@@ -20,6 +20,15 @@ body,
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
 }
 
+.gif-card--interactive {
+  cursor: zoom-in;
+}
+
+.gif-card--interactive:focus-visible {
+  outline: 2px solid rgba(13, 110, 253, 0.95);
+  outline-offset: 2px;
+}
+
 .gif-card__image-wrapper {
   position: relative;
   width: 100%;
@@ -56,6 +65,30 @@ body,
 
 .gif-card__date:hover .gif-card__full-date {
   display: inline;
+}
+
+/* GIF preview modal */
+.gif-preview-dialog {
+  max-width: min(95vw, 1100px);
+}
+
+.gif-preview-content {
+  background: #090b0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gif-preview-image {
+  width: 100%;
+  max-height: min(80vh, 900px);
+  object-fit: contain;
+  border-radius: 0.75rem;
+  background: #000;
+}
+
+@media (max-width: 576px) {
+  .gif-preview-image {
+    max-height: 72vh;
+  }
 }
 
 /* Placeholder Card */

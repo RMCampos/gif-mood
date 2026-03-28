@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import GifCard from '../components/GifCard.js';
+import GifPreviewModal from '../components/GifPreviewModal.js';
 import api from '../services/api.js';
 import { Post, PaginatedResult } from '../types/index.js';
 import { useParams } from 'react-router-dom';
@@ -12,6 +13,7 @@ export default function SharedTimeline() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [previewPost, setPreviewPost] = useState<Post | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const fetchPosts = useCallback(async (cursor?: string) => {
@@ -84,7 +86,7 @@ export default function SharedTimeline() {
             )}
             <div className="timeline-grid">
               {posts.map((post) => (
-                <GifCard key={post.id} post={post} />
+                <GifCard key={post.id} post={post} onOpenPreview={setPreviewPost} />
               ))}
             </div>
             {loading && (
@@ -98,6 +100,8 @@ export default function SharedTimeline() {
           </>
         )}
       </main>
+
+      <GifPreviewModal post={previewPost} onClose={() => setPreviewPost(null)} />
     </>
   );
 }

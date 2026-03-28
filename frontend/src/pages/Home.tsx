@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Navbar from '../components/Navbar.js';
 import GifCard from '../components/GifCard.js';
+import GifPreviewModal from '../components/GifPreviewModal.js';
 import PlaceholderCard from '../components/PlaceholderCard.js';
 import PostModal from '../components/PostModal.js';
 import api from '../services/api.js';
@@ -13,6 +14,7 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [previewPost, setPreviewPost] = useState<Post | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const fetchPosts = useCallback(async (cursor?: string) => {
@@ -68,7 +70,7 @@ export default function Home() {
         <div className="timeline-grid">
           <PlaceholderCard onPost={() => setShowModal(true)} />
           {posts.map((post) => (
-            <GifCard key={post.id} post={post} />
+            <GifCard key={post.id} post={post} onOpenPreview={setPreviewPost} />
           ))}
         </div>
         {loading && (
@@ -92,6 +94,7 @@ export default function Home() {
       </button>
 
       <PostModal show={showModal} onClose={() => setShowModal(false)} onCreated={handlePostCreated} />
+      <GifPreviewModal post={previewPost} onClose={() => setPreviewPost(null)} />
     </>
   );
 }
