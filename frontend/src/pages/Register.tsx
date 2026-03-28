@@ -57,7 +57,7 @@ export default function Register() {
     setLoading(true);
     try {
       await api.post('/auth/register', { username: normalizedUsername, email, password });
-      const { data } = await api.post<AuthResponse>('/auth/login', { email, password });
+      const { data } = await api.post<AuthResponse>('/auth/login', { identifier: email, password });
       login(data.token);
       navigate('/home', { replace: true });
     } catch (err) {
