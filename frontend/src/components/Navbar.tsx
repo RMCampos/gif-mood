@@ -1,13 +1,23 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function handleLogout() {
     logout();
     navigate('/');
+  }
+
+  function toggleMenu() {
+    setIsMenuOpen((prev) => !prev);
+  }
+
+  function closeMenu() {
+    setIsMenuOpen(false);
   }
 
   return (
@@ -19,29 +29,34 @@ export default function Navbar() {
         <button
           className="navbar-toggler"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarMain"
           aria-controls="navbarMain"
-          aria-expanded="false"
+          aria-expanded={isMenuOpen}
           aria-label="Toggle navigation"
+          onClick={toggleMenu}
         >
           <span className="navbar-toggler-icon" />
         </button>
-        <div className="collapse navbar-collapse" id="navbarMain">
+        <div className={`collapse navbar-collapse${isMenuOpen ? ' show' : ''}`} id="navbarMain">
           {isAuthenticated ? (
             <ul className="navbar-nav ms-auto align-items-center gap-2">
               <li className="nav-item">
-                <Link className="nav-link" to="/home">
+                <Link className="nav-link" to="/home" onClick={closeMenu}>
                   Timeline
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/profile">
+                <Link className="nav-link" to="/profile" onClick={closeMenu}>
                   {user?.username ?? 'Profile'}
                 </Link>
               </li>
               <li className="nav-item">
-                <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
+                <button
+                  className="btn btn-outline-light btn-sm"
+                  onClick={() => {
+                    handleLogout();
+                    closeMenu();
+                  }}
+                >
                   Logout
                 </button>
               </li>
@@ -49,12 +64,12 @@ export default function Navbar() {
           ) : (
             <ul className="navbar-nav ms-auto gap-2">
               <li className="nav-item">
-                <Link className="nav-link" to="/login">
+                <Link className="nav-link" to="/login" onClick={closeMenu}>
                   Login
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="btn btn-light btn-sm" to="/register">
+                <Link className="btn btn-light btn-sm" to="/register" onClick={closeMenu}>
                   Register
                 </Link>
               </li>
