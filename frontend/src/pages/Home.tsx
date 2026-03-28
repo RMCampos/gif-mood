@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Navbar from '../components/Navbar.js';
 import GifCard from '../components/GifCard.js';
+import PlaceholderCard from '../components/PlaceholderCard.js';
 import PostModal from '../components/PostModal.js';
 import api from '../services/api.js';
 import { Post, PaginatedResult } from '../types/index.js';
@@ -64,13 +65,8 @@ export default function Home() {
     <>
       <Navbar />
       <main className="container py-4">
-        {posts.length === 0 && !loading && (
-          <div className="text-center text-muted py-5">
-            <div className="display-1">🎭</div>
-            <p className="lead mt-3">Your timeline is empty. Post your first GIF!</p>
-          </div>
-        )}
         <div className="timeline-grid">
+          <PlaceholderCard onPost={() => setShowModal(true)} />
           {posts.map((post) => (
             <GifCard key={post.id} post={post} />
           ))}

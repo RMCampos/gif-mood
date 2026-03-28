@@ -58,6 +58,31 @@ body,
   display: inline;
 }
 
+/* Placeholder Card */
+.placeholder-card {
+  border: 2px dashed rgba(255, 255, 255, 0.15) !important;
+}
+
+.placeholder-card:hover {
+  border-color: rgba(13, 110, 253, 0.5) !important;
+}
+
+.placeholder-card__image-wrapper {
+  /* ~30% the height of a standard 4:3 card (0.75 × 0.3 = 0.225 of width → 40:9) */
+  aspect-ratio: 40 / 9 !important;
+}
+
+.placeholder-card__icon {
+  font-size: 3rem;
+}
+
+.placeholder-card__message {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
 /* Timeline grid */
 .timeline-grid {
   display: grid;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.js';
+import { EmojiProvider } from './context/EmojiContext.js';
 import Landing from './pages/Landing.js';
 import Login from './pages/Login.js';
 import Register from './pages/Register.js';
@@ -66,9 +67,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <EmojiProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </EmojiProvider>
     </AuthProvider>
   );
 }
