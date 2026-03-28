@@ -67,6 +67,11 @@ body,
   border-color: rgba(13, 110, 253, 0.5) !important;
 }
 
+.placeholder-card__image-wrapper {
+  /* ~30% the height of a standard 4:3 card (0.75 × 0.3 = 0.225 of width → 40:9) */
+  aspect-ratio: 40 / 9 !important;
+}
+
 .placeholder-card__icon {
   font-size: 3rem;
 }
