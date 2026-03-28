@@ -58,6 +58,26 @@ body,
   display: inline;
 }
 
+/* Placeholder Card */
+.placeholder-card {
+  border: 2px dashed rgba(255, 255, 255, 0.15) !important;
+}
+
+.placeholder-card:hover {
+  border-color: rgba(13, 110, 253, 0.5) !important;
+}
+
+.placeholder-card__icon {
+  font-size: 3rem;
+}
+
+.placeholder-card__message {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
 /* Timeline grid */
 .timeline-grid {
   display: grid;
