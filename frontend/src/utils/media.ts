@@ -5,7 +5,8 @@ export function resolveMediaUrl(url: string): string {
   if (isAbsolute) return url;
 
   if (url.startsWith('/uploads/')) {
-    return `/api${url}`;
+    const backendServer = import.meta.env.VITE_BACKEND_SERVER ?? '';
+    return `${backendServer}${url}`;
   }
 
   return url;
