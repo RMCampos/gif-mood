@@ -2,7 +2,7 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.0.0" 
+      version = ">= 2.0.0"
     }
   }
 }
@@ -69,11 +69,11 @@ resource "kubernetes_secret_v1" "gif_mood_secrets" {
   }
 
   data = {
-    postgres_user       = var.db_user
-    postgres_password   = var.db_password
-    postgres_db         = var.db_name
-    jwt_secret          = var.jwt_secret
-    giphy_api_key       = var.giphy_api_key
+    postgres_user     = var.db_user
+    postgres_password = var.db_password
+    postgres_db       = var.db_name
+    jwt_secret        = var.jwt_secret
+    giphy_api_key     = var.giphy_api_key
   }
 }
 
@@ -130,7 +130,7 @@ resource "kubernetes_deployment_v1" "gif_mood_db" {
             value_from {
               secret_key_ref {
                 name = kubernetes_secret_v1.gif_mood_secrets.metadata[0].name
-                key = "postgres_user"
+                key  = "postgres_user"
               }
             }
           }
@@ -139,7 +139,7 @@ resource "kubernetes_deployment_v1" "gif_mood_db" {
             value_from {
               secret_key_ref {
                 name = kubernetes_secret_v1.gif_mood_secrets.metadata[0].name
-                key = "postgres_password"
+                key  = "postgres_password"
               }
             }
           }
@@ -148,7 +148,7 @@ resource "kubernetes_deployment_v1" "gif_mood_db" {
             value_from {
               secret_key_ref {
                 name = kubernetes_secret_v1.gif_mood_secrets.metadata[0].name
-                key = "postgres_db"
+                key  = "postgres_db"
               }
             }
           }
@@ -189,11 +189,11 @@ resource "kubernetes_deployment_v1" "gif_mood_backend" {
       metadata { labels = { app = "gif-mood-backend" } }
       spec {
         init_container {
-          name        = "prisma-migrate"
-          image       = var.migrations_image
-          command     = ["npx", "prisma", "db", "push"]
+          name    = "prisma-migrate"
+          image   = var.migrations_image
+          command = ["npx", "prisma", "db", "push"]
           env {
-            name = "DATABASE_URL"
+            name  = "DATABASE_URL"
             value = "postgresql://${var.db_user}:${var.db_password}@gif-mood-db-svc:5432/${var.db_name}"
           }
         }
@@ -205,7 +205,7 @@ resource "kubernetes_deployment_v1" "gif_mood_backend" {
             mount_path = "/uploads"
           }
           env {
-            name = "DATABASE_URL"
+            name  = "DATABASE_URL"
             value = "postgresql://${var.db_user}:${var.db_password}@gif-mood-db-svc:5432/${var.db_name}"
           }
           env {
@@ -217,7 +217,7 @@ resource "kubernetes_deployment_v1" "gif_mood_backend" {
             value_from {
               secret_key_ref {
                 name = kubernetes_secret_v1.gif_mood_secrets.metadata[0].name
-                key = "jwt_secret"
+                key  = "jwt_secret"
               }
             }
           }
@@ -226,16 +226,16 @@ resource "kubernetes_deployment_v1" "gif_mood_backend" {
             value_from {
               secret_key_ref {
                 name = kubernetes_secret_v1.gif_mood_secrets.metadata[0].name
-                key = "giphy_api_key"
+                key  = "giphy_api_key"
               }
             }
           }
           env {
-            name = "UPLOAD_DIR"
+            name  = "UPLOAD_DIR"
             value = "/uploads"
           }
           env {
-            name = "CORS_ORIGIN"
+            name  = "CORS_ORIGIN"
             value = var.cors_origin
           }
           resources {
@@ -278,7 +278,7 @@ resource "kubernetes_service_v1" "gif_mood_backend_svc" {
   spec {
     selector = { app = "gif-mood-backend" }
     port {
-      port = 3000
+      port        = 3000
       target_port = 3000
     }
   }
@@ -317,7 +317,7 @@ resource "kubernetes_service_v1" "gif_mood_frontend_svc" {
   spec {
     selector = { app = "gif-mood-frontend" }
     port {
-      port = 80
+      port        = 80
       target_port = 80
     }
     type = "ClusterIP"
@@ -343,7 +343,7 @@ resource "kubernetes_ingress_v1" "gif_mood_ingress" {
       host = "gif-mood.darkroasted.vps-kinghost.net"
       http {
         path {
-          path = "/"
+          path      = "/"
           path_type = "Prefix"
           backend {
             service {
@@ -358,7 +358,7 @@ resource "kubernetes_ingress_v1" "gif_mood_ingress" {
       host = "gif-moodapi.darkroasted.vps-kinghost.net"
       http {
         path {
-          path = "/"
+          path      = "/"
           path_type = "Prefix"
           backend {
             service {

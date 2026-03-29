@@ -70,9 +70,9 @@ jobs:
           echo "migrations_image=$migrations_image" >> "$GITHUB_OUTPUT"
           echo "frontend_image=$frontend_image" >> "$GITHUB_OUTPUT"
 
-      - name: Terraform Fmt
+      - name: Terraform Fmt -check -diff
         working-directory: terraform
-        run: terraform fmt -check
+        run: terraform fmt -check -diff
 
       - name: Terraform Init
         working-directory: terraform
